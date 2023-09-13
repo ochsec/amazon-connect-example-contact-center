@@ -1,2 +1,2 @@
-InstanceAlias=
-ConnectBucketName=
+InstanceAlias=monopoly-bank # your unique contact center alias 
+ConnectBucketName=amazon-connect-251cfd3cf067 # your unique bucket name

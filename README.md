@@ -1,4 +1,4 @@
-# Monopoly Bank Contact Center
+# Amazon Connect Example Contact Center
 ## An Example Amazon Connect Implementation
 
 (WIP) This repo contains a deployable, functional Amazon Connect contact center
