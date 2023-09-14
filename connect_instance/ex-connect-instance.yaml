@@ -12,13 +12,13 @@ Parameters:
         Description: The name of the bucket to be used for the storage configs
 
 Resources:
-    MBKMSKey:
+    ExKMSKey:
         Type: AWS::KMS::Key
         Properties:
             Description: KMS key for Kinesis Video Streams
             KeyPolicy:
                 Version: "2012-10-17"
-                Id: mb-kvs-kms-key
+                Id: Ex-kvs-kms-key
                 Statement:
                     - Sid: Enable IAM User Permissions
                       Effect: Allow
@@ -38,9 +38,9 @@ Resources:
                           - kms:DescribeKey
                       Resource: "*"
 
-    MBConnectInstance:
+    ExConnectInstance:
         Type: AWS::Connect::Instance
-        DependsOn: MBKMSKey
+        DependsOn: ExKMSKey
         Properties:
             Attributes:
                 InboundCalls: true
@@ -48,30 +48,30 @@ Resources:
             IdentityManagementType: CONNECT_MANAGED
             InstanceAlias: !Ref InstanceAlias
 
-    MBConnectInstanceContactTraceStorageConfig:
+    ExConnectInstanceContactTraceStorageConfig:
         Type: AWS::Connect::InstanceStorageConfig
         Properties:
-            InstanceArn: !Ref MBConnectInstance
+            InstanceArn: !Ref ExConnectInstance
             StorageType: S3
             ResourceType: CHAT_TRANSCRIPTS
             S3Config:
                 BucketName: !Ref ConnectBucketName
                 BucketPrefix: contact-trace/
 
-    MBConnectInstanceVoiceRecordingStorageConfig:
+    ExConnectInstanceVoiceRecordingStorageConfig:
         Type: AWS::Connect::InstanceStorageConfig
         Properties:
-            InstanceArn: !Ref MBConnectInstance
+            InstanceArn: !Ref ExConnectInstance
             StorageType: S3
             ResourceType: CALL_RECORDINGS
             S3Config:
                 BucketName: !Ref ConnectBucketName
                 BucketPrefix: voice-recording/
 
-    MBConnectInstanceLiveMediaStreamStorageConfig:
+    ExConnectInstanceLiveMediaStreamStorageConfig:
         Type: AWS::Connect::InstanceStorageConfig
         Properties:
-            InstanceArn: !Ref MBConnectInstance
+            InstanceArn: !Ref ExConnectInstance
             StorageType: KINESIS_VIDEO_STREAM
             ResourceType: MEDIA_STREAMS
             KinesisVideoStreamConfig:
@@ -79,4 +79,4 @@ Resources:
                 RetentionPeriodHours: 2
                 EncryptionConfig:
                     EncryptionType: KMS
-                    KeyId: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/${MBKMSKey}"
+                    KeyId: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/${ExKMSKey}"
