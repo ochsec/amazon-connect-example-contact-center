@@ -1,0 +1,32 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Deploys the VPC for the example Amazon Connect contact center
+
+Resources:
+  ExConnectVpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+
+  ExSubnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref ExConnectVpc
+      CidrBlock: 10.0.0.0/24
+
+  ExSubnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref ExConnectVpc
+      CidrBlock: 10.0.1.0/24
+
+  ExSubnet3:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref ExConnectVpc
+      CidrBlock: 10.0.2.0/24
+
+  ExSubnet4:
+    Type: AWS::EC2::Subnet
+    Properties:
+      VpcId: !Ref ExConnectVpc
+      CidrBlock: 10.0.3.0/24
