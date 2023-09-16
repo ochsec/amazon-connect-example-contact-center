@@ -30,3 +30,14 @@ Resources:
     Properties:
       VpcId: !Ref ExConnectVpc
       CidrBlock: 10.0.3.0/24
+
+Outputs:
+  VpcId:
+    Value: !Ref ExConnectVpc
+    Export:
+      Name: !Sub ${AWS::StackName}-VpcId
+
+  SubnetIds:
+    Value: !Join [",", [!Ref ExSubnet1, !Ref ExSubnet2, !Ref ExSubnet3, !Ref ExSubnet4]]
+    Export:
+      Name: !Sub ${AWS::StackName}-SubnetIds
