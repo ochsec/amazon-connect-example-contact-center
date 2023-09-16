@@ -160,6 +160,76 @@ Resources:
                           StringEquals:
                               iam:AWSServiceName: connect.amazonaws.com
 
+    ExAPIGatewayPolicy:
+        Type: AWS::IAM::ManagedPolicy
+        Properties:
+            ManagedPolicyName: ex-connect-iam-apigw-policy
+            Description: Policy attached to example Connect lambda execution role
+            PolicyDocument:
+                Version: 2012-10-17
+                Statement:
+                    - Effect: Allow
+                      Action:
+                          - execute-api:Invoke
+                          - execute-api:ManageConnections
+                      Resource:
+                          - !Sub arn:${AWS::Partition}:execute-api:*:${AWS::AccountId}:*
+
+    ExSSMPolicy:
+        Type: AWS::IAM::ManagedPolicy
+        Properties:
+            ManagedPolicyName: ex-connect-iam-ssm-policy
+            Description: Policy attached to example Connect lambda execution role
+            PolicyDocument:
+                Version: 2012-10-17
+                Statement:
+                    - Effect: Allow
+                      Action:
+                          - ssm:Describe*
+                          - ssm:Get*
+                          - ssm:Lists*
+                      Resource: "*"
+
+    ExLambdaPolicy:
+        Type: AWS::IAM::ManagedPolicy
+        Properties:
+            ManagedPolicyName: ex-connect-iam-lambda-policy
+            Description: Policy attached to example Connect lambda execution role
+            PolicyDocument:
+                Version: 2012-10-17
+                Statement:
+                    - Effect: Allow
+                      Action: lambda:InvokeFunction
+                      Resource: !Sub arn:${AWS::Partition}:lambda:*:${AWS::AccountId}:function:*
+                    - Effect: Allow
+                      Action:
+                          - iam:PassRole
+                          - iam:GetPolicy
+                          - iam:GetPolicyVersion
+                          - iam:GetRole
+                          - iam:GetRolePolicy
+                          - iam:ListAttachedRolePolicies
+                          - iam:ListRoles
+                          - iam:ListRolePolicies
+                      Resource:
+                          - !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:role/*
+                          - !Sub arn:${AWS::Partition}:iam::${AWS::AccountId}:policy/*
+                      Condition:
+                          StringEquals:
+                              iam:PassedToService: lambda.amazonaws.com
+
+    ExSTSPolicy:
+        Type: AWS::IAM::ManagedPolicy
+        Properties:
+            ManagedPolicyName: ex-connect-iam-sts-policy
+            Description: Policy attached to example Connect lambda execution role
+            PolicyDocument:
+                Version: 2012-10-17
+                Statement:
+                    - Effect: Allow
+                      Action: sts:AssumeRole
+                      Resource: !Sub arn:aws:iam::${AWS::AccountId}:role/*
+
     ExLambdaExecutionRole:
         Type: AWS::IAM::Role
         Properties:
@@ -169,6 +239,10 @@ Resources:
                 - !Ref ExDynamoDBPolicy
                 - !Ref ExCloudWatchPolicy
                 - !Ref ExConnectPolicy
+                - !Ref ExAPIGatewayPolicy
+                - !Ref ExSSMPolicy
+                - !Ref ExLambdaPolicy
+                - !Ref ExSTSPolicy
             AssumeRolePolicyDocument:
                 Version: 2012-10-17
                 Statement:
