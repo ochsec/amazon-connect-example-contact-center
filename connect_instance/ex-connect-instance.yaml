@@ -7,7 +7,7 @@ Parameters:
         Description: The alias the Connect Instance
         Default: monopoly-bank
 
-    ConnectBucketName:
+    BucketName:
         Type: String
         Description: The name of the bucket to be used for the storage configs
 
@@ -18,7 +18,7 @@ Resources:
             Description: KMS key for Kinesis Video Streams
             KeyPolicy:
                 Version: "2012-10-17"
-                Id: Ex-kvs-kms-key
+                Id: ex-kvs-kms-key
                 Statement:
                     - Sid: Enable IAM User Permissions
                       Effect: Allow
@@ -55,7 +55,7 @@ Resources:
             StorageType: S3
             ResourceType: CHAT_TRANSCRIPTS
             S3Config:
-                BucketName: !Ref ConnectBucketName
+                BucketName: !Ref BucketName
                 BucketPrefix: contact-trace/
 
     ExConnectInstanceVoiceRecordingStorageConfig:
@@ -65,7 +65,7 @@ Resources:
             StorageType: S3
             ResourceType: CALL_RECORDINGS
             S3Config:
-                BucketName: !Ref ConnectBucketName
+                BucketName: !Ref BucketName
                 BucketPrefix: voice-recording/
 
     ExConnectInstanceLiveMediaStreamStorageConfig:
