@@ -19,17 +19,10 @@ Resources:
       VpcId: !Ref ExConnectVpc
       CidrBlock: 10.0.1.0/24
 
-  ExSubnet3:
-    Type: AWS::EC2::Subnet
+  ExRouteTable1:
+    Type: AWS::EC2::RouteTable
     Properties:
       VpcId: !Ref ExConnectVpc
-      CidrBlock: 10.0.2.0/24
-
-  ExSubnet4:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref ExConnectVpc
-      CidrBlock: 10.0.3.0/24
 
   ExDynamoDBVPCEndpoint:
     Type: AWS::EC2::VPCEndpoint
@@ -37,6 +30,8 @@ Resources:
       VpcId: !Ref ExConnectVpc
       ServiceName: !Sub com.amazonaws.${AWS::Region}.dynamodb
       VpcEndpointType: Gateway
+      RouteTableIds:
+        - !Ref ExRouteTable1
 
   ExLambdaVPCEndpoint:
     Type: AWS::EC2::VPCEndpoint
@@ -47,8 +42,6 @@ Resources:
       SubnetIds:
         - !Ref ExSubnet1
         - !Ref ExSubnet2
-        - !Ref ExSubnet3
-        - !Ref ExSubnet4
 
   ExSSMVPCEndpoint:
     Type: AWS::EC2::VPCEndpoint
@@ -59,8 +52,6 @@ Resources:
       SubnetIds:
         - !Ref ExSubnet1
         - !Ref ExSubnet2
-        - !Ref ExSubnet3
-        - !Ref ExSubnet4
 
   ExS3VPCEndpoint:
     Type: AWS::EC2::VPCEndpoint
@@ -71,8 +62,6 @@ Resources:
       SubnetIds:
         - !Ref ExSubnet1
         - !Ref ExSubnet2
-        - !Ref ExSubnet3
-        - !Ref ExSubnet4
 
 Outputs:
   VpcId:
@@ -84,7 +73,7 @@ Outputs:
     Value:
       !Join [
         ",",
-        [!Ref ExSubnet1, !Ref ExSubnet2, !Ref ExSubnet3, !Ref ExSubnet4],
+        [!Ref ExSubnet1, !Ref ExSubnet2],
       ]
     Export:
       Name: !Sub ${AWS::StackName}-SubnetIds
