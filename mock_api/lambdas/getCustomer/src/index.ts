@@ -14,8 +14,10 @@ export const handler = (event: Event, context: any) => {
 
     const customers = data as Customer[];
     const filterResult = customers.filter(c => (
-        c[event.identifier1.field] === c[event.identifier1.value] &&
-        c[event.identifier2.field] === c[event.identifier2.value])
+        event.identifier1.value === c.Id &&
+        (event.identifier2.field === 'DOB' ?
+        event.identifier2.value === c.DOB :
+        event.identifier2.value === c.PIN))
     );
     if (filterResult.length === 0) {
         return responseObject;
