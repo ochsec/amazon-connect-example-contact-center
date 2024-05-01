@@ -1,7 +1,0 @@
-.gitconfig
-.env
-temp
-node_modules
-*packaged.yaml
-**/validate.sh
-**/deploy.sh
