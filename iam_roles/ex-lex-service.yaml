@@ -1,0 +1,59 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Lex Service Role
+
+Resources:
+  ExLexPollyPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: ex-lex-polly-policy
+      Description: Policy attached to example Connect Lex service role
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action: polly:SynthesizeSpeech
+            Resource: !Sub arn:${AWS::Partition}:polly:*:${AWS::AccountId}:*
+
+  ExLexLoggerPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: ex-lex-logger-policy
+      Description: Policy attached to example Connect Lex service role
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action:
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Resource: !Sub arn:aws:logs:*:${AWS::AccountId}:log-group:*
+
+  ExLexLambdaPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      ManagedPolicyName: ex-lex-lambda-policy
+      Description: Policy attached to example Connect Lex service role
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Action: lambda:InvokeFunction
+            Resource: !Sub arn:${AWS::Partition}:lambda:${AWS::Region}:${AWS::AccountId}:function:*
+
+  ExLexServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: ex-lex-service-role
+      Description: Example Connect Lex service role
+      ManagedPolicyArns:
+        - !Ref ExLexPollyPolicy
+        - !Ref ExLexLoggerPolicy
+        - !Ref ExLexLambdaPolicy
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lexv2.amazonaws.com
+            Action:
+              - sts:AssumeRole
