@@ -1,0 +1,82 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Connect Instance for Example Contact Center
+
+Parameters:
+    InstanceAlias:
+        Type: String
+        Description: The alias the Connect Instance
+        Default: monopoly-bank
+
+    BucketName:
+        Type: String
+        Description: The name of the bucket to be used for the storage configs
+
+Resources:
+    ExKMSKey:
+        Type: AWS::KMS::Key
+        Properties:
+            Description: KMS key for Kinesis Video Streams
+            KeyPolicy:
+                Version: "2012-10-17"
+                Id: ex-kvs-kms-key
+                Statement:
+                    - Sid: Enable IAM User Permissions
+                      Effect: Allow
+                      Principal:
+                          AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+                      Action: kms:*
+                      Resource: "*"
+                    - Sid: Allow Kinesis Video Streams to use the key
+                      Effect: Allow
+                      Principal:
+                          Service: kinesisvideo.amazonaws.com
+                      Action:
+                          - kms:Encrypt
+                          - kms:Decrypt
+                          - kms:ReEncrypt*
+                          - kms:GenerateDataKey*
+                          - kms:DescribeKey
+                      Resource: "*"
+
+    ExConnectInstance:
+        Type: AWS::Connect::Instance
+        DependsOn: ExKMSKey
+        Properties:
+            Attributes:
+                InboundCalls: true
+                OutboundCalls: true
+            IdentityManagementType: CONNECT_MANAGED
+            InstanceAlias: !Ref InstanceAlias
+
+    ExConnectInstanceContactTraceStorageConfig:
+        Type: AWS::Connect::InstanceStorageConfig
+        Properties:
+            InstanceArn: !Ref ExConnectInstance
+            StorageType: S3
+            ResourceType: CHAT_TRANSCRIPTS
+            S3Config:
+                BucketName: !Ref BucketName
+                BucketPrefix: contact-trace/
+
+    ExConnectInstanceVoiceRecordingStorageConfig:
+        Type: AWS::Connect::InstanceStorageConfig
+        Properties:
+            InstanceArn: !Ref ExConnectInstance
+            StorageType: S3
+            ResourceType: CALL_RECORDINGS
+            S3Config:
+                BucketName: !Ref BucketName
+                BucketPrefix: voice-recording/
+
+    ExConnectInstanceLiveMediaStreamStorageConfig:
+        Type: AWS::Connect::InstanceStorageConfig
+        Properties:
+            InstanceArn: !Ref ExConnectInstance
+            StorageType: KINESIS_VIDEO_STREAM
+            ResourceType: MEDIA_STREAMS
+            KinesisVideoStreamConfig:
+                Prefix: media
+                RetentionPeriodHours: 2
+                EncryptionConfig:
+                    EncryptionType: KMS
+                    KeyId: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/${ExKMSKey}"

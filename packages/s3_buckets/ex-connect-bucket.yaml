@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Parameters:
+  BucketName:
+    Type: String
+    Description: Bucket for Amazon Connect instance
+    Default: ex-connect-s3-bucket
+
+Resources:
+  ExConnectS3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Ref BucketName
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              KMSMasterKeyID: !Ref ExConnectBucketKMSKey
+              SSEAlgorithm: aws:kms
+
+  ExConnectBucketKMSKey:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: KMS key for S3 bucket encryption
+      KeyPolicy:
+        Version: 2012-10-17
+        Statement:
+          - Sid: Enable IAM User Permissions
+            Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action: kms:*
+            Resource: '*'
+          - Sid: Enable S3 Bucket Encryption
+            Effect: Allow
+            Principal:
+              AWS: !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action:
+              - kms:Decrypt
+              - kms:DescribeKey
+              - kms:Encrypt
+              - kms:GenerateDataKey*
+              - kms:ReEncrypt*
+            Resource: '*'
+
+Outputs:
+  KMSKeyId:
+    Value: !Ref ExConnectBucketKMSKey
+    Export:
+      Name: !Sub "${AWS::StackName}-KMSKeyId"
