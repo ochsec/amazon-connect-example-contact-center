@@ -1,0 +1,1 @@
+git+https://github.com/ochsec/amazon-connect-python-packages.git@v1.0.1#egg=connect-packages
