@@ -12,12 +12,14 @@ Resources:
     Properties:
       VpcId: !Ref ExConnectVpc
       CidrBlock: 10.0.0.0/24
+      AvailabilityZone: !Select [0, !GetAZs '']
 
   ExSubnet2:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref ExConnectVpc
       CidrBlock: 10.0.1.0/24
+      AvailabilityZone: !Select [1, !GetAZs '']
 
   ExRouteTable1:
     Type: AWS::EC2::RouteTable
@@ -63,11 +65,32 @@ Resources:
         - !Ref ExSubnet1
         - !Ref ExSubnet2
 
+  ExRDSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Security group for RDS database instance to allow traffic only within the VPC
+      VpcId: !Ref ExConnectVpc
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 5432
+          ToPort: 5432
+          CidrIp: !GetAtt ExConnectVpc.CidrBlock  # Allows traffic from within the VPC
+      SecurityGroupEgress:
+        - IpProtocol: -1  # Allows all outbound traffic
+          FromPort: -1
+          ToPort: -1
+          CidrIp: !GetAtt ExConnectVpc.CidrBlock  # Ensures all outbound traffic is restricted to the VPC
+
 Outputs:
   VpcId:
     Value: !Ref ExConnectVpc
     Export:
       Name: !Sub ${AWS::StackName}-VpcId
+
+  VpcCidr:
+    Value: !GetAtt ExConnectVpc.CidrBlock
+    Export:
+      Name: !Sub ${AWS::StackName}-VpcCidr
 
   SubnetIds:
     Value:
@@ -77,3 +100,9 @@ Outputs:
       ]
     Export:
       Name: !Sub ${AWS::StackName}-SubnetIds
+
+  RDSSecurityGroupId:
+    Description: The ID of the security group for the RDS instance
+    Value: !Ref ExRDSSecurityGroup
+    Export:
+      Name: !Sub ${AWS::StackName}-RdsSecurityGroupID
