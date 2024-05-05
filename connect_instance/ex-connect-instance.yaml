@@ -7,10 +7,6 @@ Parameters:
         Description: The alias the Connect Instance
         Default: monopoly-bank
 
-    BucketName:
-        Type: String
-        Description: The name of the bucket to be used for the storage configs
-
 Resources:
     ExKMSKey:
         Type: AWS::KMS::Key
@@ -55,7 +51,7 @@ Resources:
             StorageType: S3
             ResourceType: CHAT_TRANSCRIPTS
             S3Config:
-                BucketName: !Ref BucketName
+                BucketName: !ImportValue  example-connect-bucket-cft-BucketName
                 BucketPrefix: contact-trace/
 
     ExConnectInstanceVoiceRecordingStorageConfig:
@@ -65,7 +61,7 @@ Resources:
             StorageType: S3
             ResourceType: CALL_RECORDINGS
             S3Config:
-                BucketName: !Ref BucketName
+                BucketName: !ImportValue example-connect-bucket-cft-BucketName
                 BucketPrefix: voice-recording/
 
     ExConnectInstanceLiveMediaStreamStorageConfig:
@@ -80,3 +76,16 @@ Resources:
                 EncryptionConfig:
                     EncryptionType: KMS
                     KeyId: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/${ExKMSKey}"
+
+Outputs:
+    ConnectInstanceName:
+        Description: "Name of the Amazon Connect Instance"
+        Value: !Ref InstanceAlias
+        Export:
+            Name: !Sub "${AWS::StackName}-ConnectInstanceName"
+
+    ConnectInstanceARN:
+        Description: "ARN of the Amazon Connect Instance"
+        Value: !GetAtt ExConnectInstance.Arn
+        Export:
+            Name: !Sub "${AWS::StackName}-ConnectInstanceARN"

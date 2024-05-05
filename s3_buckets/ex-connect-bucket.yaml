@@ -43,6 +43,18 @@ Resources:
             Resource: '*'
 
 Outputs:
+  BucketName:
+    Description: "The name of the S3 bucket used for Amazon Connect"
+    Value: !Ref BucketName
+    Export:
+      Name: !Sub "${AWS::StackName}-BucketName"
+
+  BucketARN:
+    Description: "The ARN of the S3 bucket used for Amazon Connect"
+    Value: !GetAtt ExConnectS3Bucket.Arn
+    Export:
+      Name: !Sub "${AWS::StackName}-BucketARN"
+
   KMSKeyId:
     Value: !Ref ExConnectBucketKMSKey
     Export:
